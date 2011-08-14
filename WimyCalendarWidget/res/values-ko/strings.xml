@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wimy 달력</string>
+    <string name="loading">불러오는 중...</string>
+    <string name="no_event">이벤트 없음</string>
+    <string name="today">오늘</string>
+    <string name="widget_name">Wimy 달력</string>
+</resources>
