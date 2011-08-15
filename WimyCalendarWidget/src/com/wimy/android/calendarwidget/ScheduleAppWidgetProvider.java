@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.wimy.android.calendar.widget.R;
+import com.wimy.android.calendarwidget.R;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
