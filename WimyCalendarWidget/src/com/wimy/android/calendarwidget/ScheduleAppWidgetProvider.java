@@ -1,4 +1,4 @@
-package com.wimy.android.calendar.widget;
+package com.wimy.android.calendarwidget;
 
 import java.util.ArrayList;
 import java.util.Calendar;
