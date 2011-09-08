@@ -2,16 +2,13 @@ package com.wimy.android.calendarwidget.test;
 
 
 import java.util.Date;
-
 import junit.framework.TestCase;
-
 import org.junit.Before;
-
-import android.test.ActivityInstrumentationTestCase2;
+//import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 
 //import com.wimy.android.calendarwidget.MainActivity;
-import com.wimy.android.calendarwidget.ScheduleAppWidgetProvider;
+import com.wimy.android.calendarwidget.CalendarData;
 
 public class MyTest extends TestCase //extends ActivityInstrumentationTestCase2<MainActivity>
 {
@@ -50,11 +47,11 @@ public class MyTest extends TestCase //extends ActivityInstrumentationTestCase2<
 		ShowTestMsg("GMT : " + date.toGMTString());
 		ShowTestMsg("locale : " + date.toLocaleString());
 
-		Date today = new Date(ScheduleAppWidgetProvider.getTodayStartTime());
+		Date today = new Date(CalendarData.getTodayStartTime());
 		ShowTestMsg("From getTodayStartTime() GMT : " + today.toGMTString());
 		ShowTestMsg("From getTodayStartTime() locale : " + today.toLocaleString());
 		
-		assertEquals(ScheduleAppWidgetProvider.getTodayStartTime(), date.getTime());
+		assertEquals(CalendarData.getTodayStartTime(), date.getTime());
 	}
 	
 	public void ShowTestMsg(String msg)
