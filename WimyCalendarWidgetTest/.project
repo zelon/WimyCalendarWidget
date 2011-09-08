@@ -3,7 +3,7 @@
 	<name>WimyCalendarWidgetTest</name>
 	<comment></comment>
 	<projects>
-		<project>FastFinder</project>
+		<project>WimyCalendarWidget</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

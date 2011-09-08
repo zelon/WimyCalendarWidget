@@ -1,23 +1,25 @@
-package com.wimy.android.fastfinder.test;
+package com.wimy.android.calendarwidget.test;
 
 
 import java.util.Date;
+
+import junit.framework.TestCase;
 
 import org.junit.Before;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 
-import com.wimy.android.calendar.widget.MainActivity;
-import com.wimy.android.calendar.widget.ScheduleAppWidgetProvider;
+//import com.wimy.android.calendarwidget.MainActivity;
+import com.wimy.android.calendarwidget.ScheduleAppWidgetProvider;
 
-public class MyTest extends ActivityInstrumentationTestCase2<MainActivity>
+public class MyTest extends TestCase //extends ActivityInstrumentationTestCase2<MainActivity>
 {
-	private MainActivity mActivity;
+	//private MainActivity mActivity;
 
 	public MyTest()
 	{
-		super("com.wimy.android.fastfinder.MainActivity", MainActivity.class);
+		//super("com.wimy.android.fastfinder.MainActivity", MainActivity.class);
 	}
 
 	@Before
@@ -25,7 +27,7 @@ public class MyTest extends ActivityInstrumentationTestCase2<MainActivity>
 	{
 		super.setUp();
 		
-		mActivity = this.getActivity();
+		//mActivity = this.getActivity();
 	}
 
 	public void testGetCal()
