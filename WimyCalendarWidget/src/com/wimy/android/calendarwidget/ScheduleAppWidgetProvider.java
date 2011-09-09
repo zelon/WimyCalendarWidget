@@ -1,7 +1,5 @@
 package com.wimy.android.calendarwidget;
 
-import java.util.ArrayList;
-
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.BroadcastReceiver;
@@ -15,25 +13,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
-class DayEvent
-{
-	public String date;
-	private java.util.ArrayList<String> mTitles = new ArrayList<String>();
-	
-	public void appendTitle(String title)
-	{
-		mTitles.add(title);
-	}
-	
-	public ArrayList<String> getTitles()
-	{
-		return mTitles;
-	}
-}
-
 class CalendarDataProviderObserver extends ContentObserver
 {
-	public static CalendarDataProviderObserver sInstance = null;
 	private Context mContext;
 
 	public CalendarDataProviderObserver(Handler handler, Context context)
@@ -43,17 +24,14 @@ class CalendarDataProviderObserver extends ContentObserver
 		Log.i("zelon", "CalendarDataProviderObserver()");
 		
 		mContext = context;
-		sInstance = this;
 	}
 
 	@Override
 	public void onChange(boolean selfChange)
 	{
 		Log.i("zelon", "onChange");
-		
-		AppWidgetManager wm = AppWidgetManager.getInstance(mContext);
-		ComponentName widget = new ComponentName(mContext, ScheduleAppWidgetProvider.class);
-		wm.updateAppWidget(widget, CalendarData.makeRemoteViews(mContext));
+
+		ScheduleAppWidgetProvider.updateWidget(mContext);
 	}
 }
 
@@ -90,10 +68,6 @@ public class ScheduleAppWidgetProvider extends AppWidgetProvider
 		super.onEnabled(context);
 		Log.i("zelon","onEnabled");
 		
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_DATE_CHANGED);
-        filter.addAction(REFRESH);
-        context.getApplicationContext().registerReceiver(mIntentReceiver, filter);
 	}
 	
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
@@ -102,6 +76,11 @@ public class ScheduleAppWidgetProvider extends AppWidgetProvider
 		Log.i("zelon", "onUpdate");
 		final int N = appWidgetIds.length;
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_DATE_CHANGED);
+        filter.addAction(REFRESH);
+        context.getApplicationContext().registerReceiver(mIntentReceiver, filter);
+		
 		// Perform this loop procedure for each App Widget that belongs to this
 		// provider
 		for (int i = 0; i < N; i++)
@@ -133,15 +112,16 @@ public class ScheduleAppWidgetProvider extends AppWidgetProvider
                     )
             {
     			Log.i("zelon", "on recv DateChangeReceiver.onReceive date_changed");
-    			if ( null != CalendarDataProviderObserver.sInstance )
-    			{
-    				Log.i("zelon", "on recv DateChangeReceiver.onReceive make change");
 
-					AppWidgetManager wm = AppWidgetManager.getInstance(context);
-					ComponentName widget = new ComponentName(context, ScheduleAppWidgetProvider.class);
-					wm.updateAppWidget(widget, CalendarData.makeRemoteViews(context));
-    			}
+				updateWidget(context);
             }
         }
     };
+    
+    public static void updateWidget(Context context)
+    {
+		AppWidgetManager wm = AppWidgetManager.getInstance(context);
+		ComponentName widget = new ComponentName(context, ScheduleAppWidgetProvider.class);
+		wm.updateAppWidget(widget, CalendarData.makeRemoteViews(context));
+    }
 }

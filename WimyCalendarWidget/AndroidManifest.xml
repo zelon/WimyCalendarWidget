@@ -16,5 +16,11 @@
             <meta-data android:name="android.appwidget.provider"
                         android:resource="@xml/schedule_appwidget_info" />
         </receiver>
+        <activity android:name="WimyCalendarSettingActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"></action>
+                <category android:name="android.intent.category.LAUNCHER"></category>
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
