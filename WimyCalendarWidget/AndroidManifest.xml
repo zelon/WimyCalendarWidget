@@ -22,5 +22,11 @@
                 <category android:name="android.intent.category.LAUNCHER"></category>
             </intent-filter>
         </activity>
+        <receiver android:name="EventReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.DATE_CHANGED"></action>
+                <action android:name="com.wimy.android.calendarwidget.refresh"></action>
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

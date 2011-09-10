@@ -24,7 +24,6 @@ public class CalendarData {
 		String[] stringUris = new String[] { "content://com.android.calendar/", // For 2.3 and above
 								// "content://calendar/" ///< For 2.1 and below
 		};
-
 		int index = 0;
 
 		final int ONE_DAY_MILLI = 1000 * 60 * 60 * 24;
@@ -33,9 +32,13 @@ public class CalendarData {
 				.getTimeZone("GMT+09:00"));
 		cal_today.setTimeInMillis(getTodayStartTime());
 
-		for (String stringUri : stringUris) {
-			for (index = 0; index < 7; ++index) {
-				//Log.i("zelon", "{");
+		final int CHECK_DAY_DURATION = 4;
+		
+		for (String stringUri : stringUris)
+		{
+			for (index = 0; index < CHECK_DAY_DURATION; ++index)
+			{
+				Log.i("zelon", "{");
 				boolean bFound = false;
 				Uri uri = Uri.parse(stringUri);
 
@@ -53,26 +56,25 @@ public class CalendarData {
 						.getTimeZone("GMT+09:00"));
 				endDay.setTimeInMillis(endUnixtime);
 
-				//Log.i("zelon", "StartDay : " + startDay.getTime().toGMTString());
-				//Log.i("zelon", "EndDay : " + endDay.getTime().toGMTString());
+				Log.i("zelon", "StartDay : " + startDay.getTime().toGMTString());
+				Log.i("zelon", "EndDay : " + endDay.getTime().toGMTString());
 
 				Builder builder = Uri.parse(stringUri + "instances/when")
 						.buildUpon();
 				ContentUris.appendId(builder, startUnixtime + 1);
 				ContentUris.appendId(builder, endUnixtime);
 				uri = builder.build();
-				//Log.i("zelon", "URI : " + uri.toString());
+				Log.i("zelon", "URI : " + uri.toString());
 
 				Cursor c = context.getContentResolver()
 						.query(uri,
-								new String[] { "_id", "title", "begin", "end",
-										"allDay" }, null, null,
-								"startDay ASC, startMinute ASC");
+								new String[] { "_id", "title", "begin", "end", "allDay" }
+								, null, null
+								, "startDay ASC, startMinute ASC");
 
-				if (null == c) {
-					Log.i("zelon",
-							"There is no calendar in this uri : "
-									+ uri.toString());
+				if (null == c)
+				{
+					Log.i("zelon", "There is no calendar in this uri : " + uri.toString());
 
 					continue;
 				}
@@ -80,29 +82,32 @@ public class CalendarData {
 				DayEvent dayEvent = new DayEvent();
 				dayEvent.date = getDateString(startDay.getTime());
 
-				while (c.moveToNext()) {
+				while (c.moveToNext())
+				{
 					ShowEventLog(c);
 					bFound = true;
 
 					dayEvent.appendTitle(c.getString(c.getColumnIndex("title")));
 
-					if (c.getLong(c.getColumnIndex("begin")) > endUnixtime) {
+					if (c.getLong(c.getColumnIndex("begin")) > endUnixtime)
+					{
 						assert (false);
 					}
-					if (c.getLong(c.getColumnIndex("end")) < startUnixtime) {
+					if (c.getLong(c.getColumnIndex("end")) < startUnixtime)
+					{
 						assert (false);
 					}
 				}
 
-				if (bFound == false) {
-					dayEvent.appendTitle(context.getResources().getString(
-							R.string.no_event));
+				if (bFound == false)
+				{
+					dayEvent.appendTitle(context.getResources().getString(R.string.no_event));
 				}
 				c.close();
 
 				ret.add(dayEvent);
 
-				//Log.i("zelon", "}");
+				Log.i("zelon", "}");
 			}
 		}
 
@@ -116,6 +121,7 @@ public class CalendarData {
 		rightNow.set(Calendar.SECOND, 0);
 		rightNow.set(Calendar.MINUTE, 0);
 		rightNow.set(Calendar.MILLISECOND, 0);
+		rightNow.set(Calendar.AM_PM, Calendar.AM);
 		
 		return rightNow.getTime().getTime();
 	}
@@ -131,10 +137,10 @@ public class CalendarData {
 	private static void ShowEventLog(Cursor c)
 	{
 		String title = c.getString(c.getColumnIndex("title"));
-		long begin = c.getLong(c.getColumnIndex("begin"));
-		long end = c.getLong(c.getColumnIndex("end"));
+		Long begin = c.getLong(c.getColumnIndex("begin"));
+		Long end = c.getLong(c.getColumnIndex("end"));
 		
-		String log = String.format("%s from %d to %d", title, begin, end);
+		String log = String.format("%s from %s to %s", title, CalendarData.getCommaString(begin.toString()), CalendarData.getCommaString(end.toString()));
 		
 		Log.i("zelon", log);
 	}
@@ -195,5 +201,29 @@ public class CalendarData {
 		intent.setClassName("com.google.android.calendar", "com.android.calendar.AgendaActivity");
 
 		return intent;
+	}
+	
+	public static String getCommaString(String input)
+	{
+		String ret = "";
+		String temp = "";
+		
+		for ( int i=0; i<input.length(); ++i )
+		{
+			temp += input.charAt(input.length() - 1 - i);
+			
+			if ( i > 0 && i < (input.length()-1)
+					&& (i+1) % 3 == 0 )
+			{
+				temp += ",";
+			}
+		}
+		
+		for ( int i=0; i<temp.length(); ++i )
+		{
+			ret += temp.charAt(temp.length() - 1 - i);
+		}
+		
+		return ret;
 	}
 }
