@@ -2,21 +2,21 @@ package com.wimy.android.calendarwidget.test;
 
 
 import java.util.Date;
-import junit.framework.TestCase;
+
 import org.junit.Before;
-//import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
 
-//import com.wimy.android.calendarwidget.MainActivity;
+import android.test.ActivityInstrumentationTestCase2;
+
 import com.wimy.android.calendarwidget.CalendarData;
+import com.wimy.android.calendarwidget.WimyCalendarSettingActivity;
 
-public class MyTest extends TestCase //extends ActivityInstrumentationTestCase2<MainActivity>
+public class MyTest extends ActivityInstrumentationTestCase2<WimyCalendarSettingActivity>
 {
-	//private MainActivity mActivity;
+	private WimyCalendarSettingActivity mActivity;
 
 	public MyTest()
 	{
-		//super("com.wimy.android.fastfinder.MainActivity", MainActivity.class);
+		super("com.wimy.android.calendarwidget.WimyCalendarSettingActivity", WimyCalendarSettingActivity.class);
 	}
 
 	@Before
@@ -24,38 +24,27 @@ public class MyTest extends TestCase //extends ActivityInstrumentationTestCase2<
 	{
 		super.setUp();
 		
-		//mActivity = this.getActivity();
+		mActivity = getActivity();
 	}
 
 	public void testGetCal()
 	{
-		//ScheduleAppWidgetProvider.getCalendarEvents(mActivity);
+		CalendarData.getCalendarEvents(mActivity);
 	}
 	
-	public void testAAA()
+	public void test_getCommaString()
 	{
-		
+		assertEquals("123,456", CalendarData.getCommaString("123456"));
+		assertEquals("1,123,456", CalendarData.getCommaString("1123456"));
+		assertEquals("123", CalendarData.getCommaString("123"));
 	}
 	
 	public void testTodayStartTime()
 	{
-		Log.i("zelon", "testZZZGetTodayStartTime");
-
-		long theTime = 1302825600000l;
-		Date date = new Date(theTime);
-		date.setDate(11);
-		ShowTestMsg("GMT : " + date.toGMTString());
-		ShowTestMsg("locale : " + date.toLocaleString());
-
-		Date today = new Date(CalendarData.getTodayStartTime());
-		ShowTestMsg("From getTodayStartTime() GMT : " + today.toGMTString());
-		ShowTestMsg("From getTodayStartTime() locale : " + today.toLocaleString());
+		Date now = new Date(System.currentTimeMillis());
+		Date startOfToday = new Date(CalendarData.getTodayStartTimeInMillis());
 		
-		assertEquals(CalendarData.getTodayStartTime(), date.getTime());
-	}
-	
-	public void ShowTestMsg(String msg)
-	{
-		Log.i("zelon_test", msg);
+		assertEquals(now.getMonth(), startOfToday.getMonth());
+		assertEquals(now.getDate(), startOfToday.getDate());
 	}
 }
