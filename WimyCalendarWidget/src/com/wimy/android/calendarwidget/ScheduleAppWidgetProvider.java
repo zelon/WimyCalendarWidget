@@ -1,5 +1,7 @@
 package com.wimy.android.calendarwidget;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
@@ -8,7 +10,6 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.IBinder;
 import android.util.Log;
 
 class CalendarDataProviderObserver extends ContentObserver
@@ -71,10 +72,24 @@ public class ScheduleAppWidgetProvider extends AppWidgetProvider
 			
 			mObserver = new CalendarDataProviderObserver(new Handler(), context);
 
-			context.getContentResolver().registerContentObserver(Uri.parse("content://com.android.calendar/events"), true, mObserver); 
+			context.getContentResolver().registerContentObserver(Uri.parse("content://com.android.calendar/events"), true, mObserver);
+
+			setUpdateAlarm(context);
 		}
 	}
 
+	private void setUpdateAlarm(Context context)
+	{
+		Intent intent = new Intent();
+		intent.setAction(REFRESH);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+
+		long nextUpdateTime = CalendarData.getTodayStartTimeInMillis() + CalendarData.ONE_DAY_MILLI;
+		
+		AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		alarmManager.setRepeating(AlarmManager.RTC, nextUpdateTime, CalendarData.ONE_DAY_MILLI, pendingIntent);
+	}
+	
     public static void updateWidget(Context context)
     {
 		AppWidgetManager wm = AppWidgetManager.getInstance(context);

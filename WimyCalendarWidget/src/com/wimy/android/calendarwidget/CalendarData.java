@@ -10,6 +10,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.text.format.DateFormat;
@@ -18,6 +19,16 @@ import android.widget.RemoteViews;
 
 public class CalendarData {
 
+	static final int ONE_DAY_MILLI = 1000 * 60 * 60 * 24;
+
+	public static long getTodayStartTimeInMillis()
+	{
+		Calendar cal_today = Calendar.getInstance(TimeZone.getTimeZone("GMT+09:00"));
+		cal_today.setTimeInMillis(getTodayStartTime());
+		
+		return cal_today.getTimeInMillis() + (cal_today.getTimeZone().getOffset(cal_today.getTimeInMillis()));
+	}
+	
 	public static ArrayList<DayEvent> getCalendarEvents(Context context) {
 		ArrayList<DayEvent> ret = new ArrayList<DayEvent>();
 
@@ -26,25 +37,17 @@ public class CalendarData {
 		};
 		int index = 0;
 
-		final int ONE_DAY_MILLI = 1000 * 60 * 60 * 24;
-
-		Calendar cal_today = Calendar.getInstance(TimeZone
-				.getTimeZone("GMT+09:00"));
-		cal_today.setTimeInMillis(getTodayStartTime());
-
-		final int CHECK_DAY_DURATION = 4;
+		final int CHECK_DAY_DURATION = 7;
 		
 		for (String stringUri : stringUris)
 		{
-			for (index = 0; index < CHECK_DAY_DURATION; ++index)
+			for (index = -1; index < CHECK_DAY_DURATION; ++index)
 			{
 				Log.i("zelon", "{");
 				boolean bFound = false;
 				Uri uri = Uri.parse(stringUri);
 
-				long today = cal_today.getTimeInMillis()
-						+ (cal_today.getTimeZone().getOffset(cal_today
-								.getTimeInMillis()));
+				long today = getTodayStartTimeInMillis();
 
 				long startUnixtime = today + (ONE_DAY_MILLI * index);
 				long endUnixtime = startUnixtime + (ONE_DAY_MILLI) - 1;
@@ -174,6 +177,7 @@ public class CalendarData {
 			dayEvents.add(dayEvent);
 		}
 
+		boolean bPastEvent = true;
 		for ( DayEvent dayEvent : dayEvents )
 		{
 			RemoteViews newView = new RemoteViews(context.getPackageName(), R.layout.widget_small_view);
@@ -188,6 +192,13 @@ public class CalendarData {
 			}
 			
 			newView.setTextViewText(R.id.small_textview, sb.toString());
+			
+			if ( bPastEvent )
+			{
+				newView.setTextColor(R.id.small_textview, Color.DKGRAY);
+				bPastEvent = false;
+			}
+			
 			views.addView(R.id.content, newView);
 		}
 		
