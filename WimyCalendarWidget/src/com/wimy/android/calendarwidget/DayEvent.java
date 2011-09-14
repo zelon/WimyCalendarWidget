@@ -2,7 +2,7 @@ package com.wimy.android.calendarwidget;
 
 import java.util.ArrayList;
 
-class DayEvent
+public class DayEvent
 {
 	public String date;
 	private java.util.ArrayList<String> mTitles = new ArrayList<String>();

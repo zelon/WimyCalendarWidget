@@ -19,8 +19,19 @@ import android.widget.RemoteViews;
 
 public class CalendarData {
 
-	static final int ONE_DAY_MILLI = 1000 * 60 * 60 * 24;
+	public static final int ONE_DAY_MILLI = 1000 * 60 * 60 * 24;
 
+	public static String getCalendarUri()
+	{
+		boolean com_android_calendar = true;
+		
+		if ( com_android_calendar )
+		{
+			return "content://com.android.calendar/";
+		}
+		return "content://calendar/";
+	}
+	
 	public static long getTodayStartTimeInMillis()
 	{
 		Calendar cal_today = Calendar.getInstance(TimeZone.getTimeZone("GMT+09:00"));
@@ -32,86 +43,82 @@ public class CalendarData {
 	public static ArrayList<DayEvent> getCalendarEvents(Context context) {
 		ArrayList<DayEvent> ret = new ArrayList<DayEvent>();
 
-		String[] stringUris = new String[] { "content://com.android.calendar/", // For 2.3 and above
-								// "content://calendar/" ///< For 2.1 and below
-		};
 		int index = 0;
 
 		final int CHECK_DAY_DURATION = 7;
+
+		String stringUri = getCalendarUri();
 		
-		for (String stringUri : stringUris)
+		for (index = -1; index < CHECK_DAY_DURATION; ++index)
 		{
-			for (index = -1; index < CHECK_DAY_DURATION; ++index)
+			Log.i("zelon", "{");
+			boolean bFound = false;
+			Uri uri = Uri.parse(stringUri);
+
+			long today = getTodayStartTimeInMillis();
+
+			long startUnixtime = today + (ONE_DAY_MILLI * index);
+			long endUnixtime = startUnixtime + (ONE_DAY_MILLI) - 1;
+
+			Calendar startDay = Calendar.getInstance(TimeZone
+					.getTimeZone("GMT+09:00"));
+			startDay.setTimeInMillis(startUnixtime);
+			Calendar endDay = Calendar.getInstance(TimeZone
+					.getTimeZone("GMT+09:00"));
+			endDay.setTimeInMillis(endUnixtime);
+
+			Log.i("zelon", "StartDay : " + startDay.getTime().toGMTString());
+			Log.i("zelon", "EndDay : " + endDay.getTime().toGMTString());
+
+			Builder builder = Uri.parse(stringUri + "instances/when")
+					.buildUpon();
+			ContentUris.appendId(builder, startUnixtime + 1);
+			ContentUris.appendId(builder, endUnixtime);
+			uri = builder.build();
+			Log.i("zelon", "URI : " + uri.toString());
+
+			Cursor c = context.getContentResolver()
+					.query(uri,
+							new String[] { "_id", "title", "begin", "end", "allDay" }
+							, null, null
+							, "startDay ASC, startMinute ASC");
+
+			if (null == c)
 			{
-				Log.i("zelon", "{");
-				boolean bFound = false;
-				Uri uri = Uri.parse(stringUri);
+				Log.i("zelon", "There is no calendar in this uri : " + uri.toString());
 
-				long today = getTodayStartTimeInMillis();
-
-				long startUnixtime = today + (ONE_DAY_MILLI * index);
-				long endUnixtime = startUnixtime + (ONE_DAY_MILLI) - 1;
-
-				Calendar startDay = Calendar.getInstance(TimeZone
-						.getTimeZone("GMT+09:00"));
-				startDay.setTimeInMillis(startUnixtime);
-				Calendar endDay = Calendar.getInstance(TimeZone
-						.getTimeZone("GMT+09:00"));
-				endDay.setTimeInMillis(endUnixtime);
-
-				Log.i("zelon", "StartDay : " + startDay.getTime().toGMTString());
-				Log.i("zelon", "EndDay : " + endDay.getTime().toGMTString());
-
-				Builder builder = Uri.parse(stringUri + "instances/when")
-						.buildUpon();
-				ContentUris.appendId(builder, startUnixtime + 1);
-				ContentUris.appendId(builder, endUnixtime);
-				uri = builder.build();
-				Log.i("zelon", "URI : " + uri.toString());
-
-				Cursor c = context.getContentResolver()
-						.query(uri,
-								new String[] { "_id", "title", "begin", "end", "allDay" }
-								, null, null
-								, "startDay ASC, startMinute ASC");
-
-				if (null == c)
-				{
-					Log.i("zelon", "There is no calendar in this uri : " + uri.toString());
-
-					continue;
-				}
-
-				DayEvent dayEvent = new DayEvent();
-				dayEvent.date = getDateString(startDay.getTime());
-
-				while (c.moveToNext())
-				{
-					ShowEventLog(c);
-					bFound = true;
-
-					dayEvent.appendTitle(c.getString(c.getColumnIndex("title")));
-
-					if (c.getLong(c.getColumnIndex("begin")) > endUnixtime)
-					{
-						assert (false);
-					}
-					if (c.getLong(c.getColumnIndex("end")) < startUnixtime)
-					{
-						assert (false);
-					}
-				}
-
-				if (bFound == false)
-				{
-					dayEvent.appendTitle(context.getResources().getString(R.string.no_event));
-				}
-				c.close();
-
-				ret.add(dayEvent);
-
-				Log.i("zelon", "}");
+				continue;
 			}
+
+			DayEvent dayEvent = new DayEvent();
+			dayEvent.date = getDateString(startDay.getTime());
+
+			while (c.moveToNext())
+			{
+				ShowEventLog(c);
+				bFound = true;
+
+				dayEvent.appendTitle(c.getString(c.getColumnIndex("title")));
+
+				if (c.getLong(c.getColumnIndex("begin")) > endUnixtime)
+				{
+					assert (false);
+				}
+				if (c.getLong(c.getColumnIndex("end")) < startUnixtime)
+				{
+					assert (false);
+				}
+			}
+
+			if (bFound == false)
+			{
+				dayEvent.appendTitle(context.getResources().getString(R.string.no_event));
+			}
+			c.close();
+
+			ret.add(dayEvent);
+
+			Log.i("zelon", "}");
 		}
 
 		return ret;
@@ -137,7 +144,7 @@ public class CalendarData {
 		return DateFormat.format("yyyy-MM-dd EEEE", c).toString();
 	}
 
-	private static void ShowEventLog(Cursor c)
+	public static void ShowEventLog(Cursor c)
 	{
 		String title = c.getString(c.getColumnIndex("title"));
 		Long begin = c.getLong(c.getColumnIndex("begin"));
