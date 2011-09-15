@@ -167,7 +167,7 @@ public class CalendarData {
 		}
 		{// Create an Intent forcing to refresh
 			Intent intent = new Intent();
-			intent.setAction(ScheduleAppWidgetProvider.REFRESH);
+			intent.setAction(EventReceiver.REFRESH);
 			views.setOnClickPendingIntent(R.id.bt_refresh, PendingIntent.getBroadcast(context, 0, intent, 0));
 		}
 		views.setCharSequence(R.id.bt_refresh, "setText", "Refreshed time : " + Calendar.getInstance().getTime().toLocaleString());

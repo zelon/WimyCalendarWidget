@@ -22,7 +22,7 @@ public class WimyCalendarSettingActivity extends Activity {
 //				ScheduleAppWidgetProvider.updateWidget(WimyCalendarSettingActivity.this);
 				
 				Intent i = new Intent();
-				i.setAction(ScheduleAppWidgetProvider.REFRESH);
+				i.setAction(EventReceiver.REFRESH);
 				
 				sendBroadcast(i);
 			}

@@ -8,6 +8,9 @@ import android.util.Log;
 
 public class EventReceiver extends BroadcastReceiver
 {
+	// To get notification when calendar event changed
+	static final String REFRESH = "com.wimy.android.calendarwidget.refresh";
+
     @Override
     public void onReceive(Context context, Intent intent)
     {
@@ -16,7 +19,7 @@ public class EventReceiver extends BroadcastReceiver
         if (action.equals(Intent.ACTION_TIME_CHANGED)
                 || action.equals(Intent.ACTION_DATE_CHANGED)
                 || action.equals(Intent.ACTION_TIMEZONE_CHANGED)
-                || action.equals(ScheduleAppWidgetProvider.REFRESH)
+                || action.equals(REFRESH)
                 )
         {
 			Log.i("zelon", "Action Checking is ok. Send message to update UI");

@@ -28,5 +28,6 @@
                 <action android:name="com.wimy.android.calendarwidget.refresh"></action>
             </intent-filter>
         </receiver>
+        <service android:name="WidgetService" android:process="com.wimy.android.calendarwidget.widgetservice"></service>
     </application>
 </manifest>
