@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.text.format.DateFormat;
+import android.text.format.Time;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -40,87 +41,81 @@ public class CalendarData {
 		return cal_today.getTimeInMillis() + (cal_today.getTimeZone().getOffset(cal_today.getTimeInMillis()));
 	}
 	
-	public static ArrayList<DayEvent> getCalendarEvents(Context context) {
-		ArrayList<DayEvent> ret = new ArrayList<DayEvent>();
-
-		int index = 0;
-
+	public static int getJulianToday()
+	{
+		Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT+09:00"));
+		int day = Time.getJulianDay(c.getTimeInMillis(), TimeZone.getTimeZone("GMT+09:00").getRawOffset() / 1000);
+		
+		return day;
+	}
+	
+	public static ArrayList<DayEvent> getCalendarEvents(Context context)
+	{
 		final int CHECK_DAY_DURATION = 7;
 
-		String stringUri = getCalendarUri();
+		long today = CalendarData.getTodayStartTimeInMillis();
+
+		// the day before yesterday
+		long startUnixtime = today - (CalendarData.ONE_DAY_MILLI * 2);
+		long endUnixtime = today + (CalendarData.ONE_DAY_MILLI * CHECK_DAY_DURATION) - 1;
+
+		String stringUri = CalendarData.getCalendarUri();
+		Builder builder = Uri.parse(stringUri + "instances/when/").buildUpon();
+		ContentUris.appendId(builder, startUnixtime + 1);
+		ContentUris.appendId(builder, endUnixtime);
+		Uri uri = builder.build();
+
+		int julianToday = CalendarData.getJulianToday();
+
+		// from yesterday
+		--julianToday;
+
+		Calendar dateForString = Calendar.getInstance(TimeZone.getTimeZone("GMT+09:00"));
+		dateForString.add(Calendar.DATE, -1);
 		
-		for (index = -1; index < CHECK_DAY_DURATION; ++index)
+		ArrayList<DayEvent> ret = new ArrayList<DayEvent>();
+		
+		for ( int i=0; i<CHECK_DAY_DURATION; ++i )
 		{
-			Log.i("zelon", "{");
+			int checkJulianDay = julianToday + i;
 			boolean bFound = false;
-			Uri uri = Uri.parse(stringUri);
-
-			long today = getTodayStartTimeInMillis();
-
-			long startUnixtime = today + (ONE_DAY_MILLI * index);
-			long endUnixtime = startUnixtime + (ONE_DAY_MILLI) - 1;
-
-			Calendar startDay = Calendar.getInstance(TimeZone
-					.getTimeZone("GMT+09:00"));
-			startDay.setTimeInMillis(startUnixtime);
-			Calendar endDay = Calendar.getInstance(TimeZone
-					.getTimeZone("GMT+09:00"));
-			endDay.setTimeInMillis(endUnixtime);
-
-			Log.i("zelon", "StartDay : " + startDay.getTime().toGMTString());
-			Log.i("zelon", "EndDay : " + endDay.getTime().toGMTString());
-
-			Builder builder = Uri.parse(stringUri + "instances/when")
-					.buildUpon();
-			ContentUris.appendId(builder, startUnixtime + 1);
-			ContentUris.appendId(builder, endUnixtime);
-			uri = builder.build();
-			Log.i("zelon", "URI : " + uri.toString());
-
+			
+			DayEvent dayEvent = new DayEvent();
+			dayEvent.date = CalendarData.getDateString(dateForString.getTime());
+			
 			Cursor c = context.getContentResolver()
-					.query(uri,
-							new String[] { "_id", "title", "begin", "end", "allDay" }
-							, null, null
-							, "startDay ASC, startMinute ASC");
+					.query(uri, null , null , null , "startDay ASC, startMinute ASC");
 
 			if (null == c)
 			{
-				Log.i("zelon", "There is no calendar in this uri : " + uri.toString());
-
-				continue;
+				dayEvent.appendTitle("There is no calendar in this uri : " + uri.toString());
 			}
-
-			DayEvent dayEvent = new DayEvent();
-			dayEvent.date = getDateString(startDay.getTime());
-
-			while (c.moveToNext())
+			else
 			{
-				ShowEventLog(c);
-				bFound = true;
-
-				dayEvent.appendTitle(c.getString(c.getColumnIndex("title")));
-
-				if (c.getLong(c.getColumnIndex("begin")) > endUnixtime)
+				while ( c.moveToNext() )
 				{
-					assert (false);
+					if ( c.getInt(c.getColumnIndex("startDay")) <= checkJulianDay
+							&& c.getInt(c.getColumnIndex("endDay")) >= checkJulianDay )
+					{
+						dayEvent.appendTitle(c.getString(c.getColumnIndex("title")));
+						
+						bFound = true;
+					}
 				}
-				if (c.getLong(c.getColumnIndex("end")) < startUnixtime)
-				{
-					assert (false);
-				}
+				
+				c.close();
 			}
-
+			
 			if (bFound == false)
 			{
 				dayEvent.appendTitle(context.getResources().getString(R.string.no_event));
 			}
-			c.close();
 
 			ret.add(dayEvent);
-
-			Log.i("zelon", "}");
+			
+			dateForString.add(Calendar.DATE, +1);
 		}
-
+		
 		return ret;
 	}
 
@@ -152,7 +147,7 @@ public class CalendarData {
 		
 		String log = String.format("%s from %s to %s", title, CalendarData.getCommaString(begin.toString()), CalendarData.getCommaString(end.toString()));
 		
-		Log.i("zelon", log);
+		Log.i("zelon_test", log);
 	}
 	
 	public static RemoteViews makeRemoteViews(Context context) {

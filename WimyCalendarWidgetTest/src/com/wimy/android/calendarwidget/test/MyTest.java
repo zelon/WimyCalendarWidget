@@ -1,14 +1,25 @@
 package com.wimy.android.calendarwidget.test;
 
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.Before;
 
+import android.content.ContentUris;
+import android.database.Cursor;
+import android.net.Uri;
+import android.net.Uri.Builder;
 import android.test.ActivityInstrumentationTestCase2;
+import android.text.format.Time;
+import android.util.Log;
 
 import com.wimy.android.calendarwidget.CalendarData;
+import com.wimy.android.calendarwidget.R;
 import com.wimy.android.calendarwidget.WimyCalendarSettingActivity;
+import com.wimy.android.calendarwidget.DayEvent;
 
 public class MyTest extends ActivityInstrumentationTestCase2<WimyCalendarSettingActivity>
 {
@@ -46,5 +57,26 @@ public class MyTest extends ActivityInstrumentationTestCase2<WimyCalendarSetting
 		
 		assertEquals(now.getMonth(), startOfToday.getMonth());
 		assertEquals(now.getDate(), startOfToday.getDate());
+	}
+	
+	public void show(ArrayList<DayEvent> events)
+	{
+		for ( DayEvent event : events )
+		{
+			ArrayList<String> titles = event.getTitles();
+			StringBuilder builder = new StringBuilder();
+			
+			builder.append(event.date + "\n");
+			for ( String title : titles )
+			{
+				builder.append(" - " + title + "\n");
+			}
+			Log.i("zelon_test", builder.toString());
+		}
+	}
+	
+	public void test_current_day()
+	{
+		Log.i("zelon_test2", "Julianday : " + CalendarData.getJulianToday());
 	}
 }
