@@ -2,24 +2,16 @@ package com.wimy.android.calendarwidget.test;
 
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import org.junit.Before;
 
-import android.content.ContentUris;
-import android.database.Cursor;
-import android.net.Uri;
-import android.net.Uri.Builder;
 import android.test.ActivityInstrumentationTestCase2;
-import android.text.format.Time;
 import android.util.Log;
 
 import com.wimy.android.calendarwidget.CalendarData;
-import com.wimy.android.calendarwidget.R;
-import com.wimy.android.calendarwidget.WimyCalendarSettingActivity;
 import com.wimy.android.calendarwidget.DayEvent;
+import com.wimy.android.calendarwidget.WimyCalendarSettingActivity;
 
 public class MyTest extends ActivityInstrumentationTestCase2<WimyCalendarSettingActivity>
 {
