@@ -5,21 +5,13 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Handler;
 import android.os.IBinder;
 
 public class WidgetService extends Service {
 
-	private CalendarEventObserver mObserver;
-
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 	
-		mObserver = new CalendarEventObserver(new Handler(), this);
-
-		getContentResolver().registerContentObserver(Uri.parse("content://com.android.calendar/events"), true, mObserver);
-
 		setUpdateAlarm();
 
 		return super.onStartCommand(intent, flags, startId);
@@ -45,10 +37,6 @@ public class WidgetService extends Service {
 
 	@Override
 	public void onDestroy() {
-		if ( null != mObserver )
-		{
-			getContentResolver().unregisterContentObserver(mObserver);
-		}
 		super.onDestroy();
 	}
 	
