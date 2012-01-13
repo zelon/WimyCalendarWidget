@@ -32,7 +32,7 @@ public class WidgetService extends Service {
 		long nextUpdateTime = CalendarData.getTodayStartTimeInMillis() + CalendarData.ONE_DAY_MILLI;
 		
 		AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-		alarmManager.setRepeating(AlarmManager.RTC, nextUpdateTime, CalendarData.ONE_DAY_MILLI, pendingIntent);
+		alarmManager.setRepeating(AlarmManager.RTC, nextUpdateTime, CalendarData.ONE_DAY_MILLI / 2, pendingIntent);
 	}
 
 	@Override
