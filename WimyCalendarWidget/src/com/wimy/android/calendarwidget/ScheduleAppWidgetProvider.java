@@ -5,10 +5,14 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Handler;
 import android.util.Log;
 
 public class ScheduleAppWidgetProvider extends AppWidgetProvider
 {
+	private CalendarEventObserver mObserver;
+
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds)
 	{
 		Log.i("zelon", "onUpdate");
@@ -29,9 +33,23 @@ public class ScheduleAppWidgetProvider extends AppWidgetProvider
 			intent.setClass(context, WidgetService.class);
 			context.startService(intent);
 		}
+
+		mObserver = new CalendarEventObserver(new Handler(), context);
+		context.getContentResolver().registerContentObserver(Uri.parse("content://com.android.calendar/events"), true, mObserver);
 	}
 
-    public static void updateWidget(Context context)
+    @Override
+	public void onDeleted(Context context, int[] appWidgetIds) {
+		
+		if ( null != mObserver )
+		{
+			context.getContentResolver().unregisterContentObserver(mObserver);
+		}
+    	
+    	super.onDeleted(context, appWidgetIds);
+	}
+
+	public static void updateWidget(Context context)
     {
 		AppWidgetManager wm = AppWidgetManager.getInstance(context);
 		ComponentName widget = new ComponentName(context, ScheduleAppWidgetProvider.class);
